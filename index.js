@@ -13,7 +13,16 @@ const app = express();
 
 // Middleware
 // Middleware
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      "https://unique-software-agency.com",
+      "https://www.unique-software-agency.com",
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 // MongoDB Connection
