@@ -1,32 +1,5 @@
 import Order from "../models/orders.js";
 
-export const createOrder = async (req, res) => {
-  try {
-    const { orderId, packageData, referenceCode } = req.body;
-
-    if (!orderId || !packageData) {
-      return res.status(400).json({ message: "Missing required fields" });
-    }
-
-    // Create new order document
-    const newOrder = new Order({
-      orderId,
-      category: packageData.category,
-      packageName: packageData.packageName,
-      amountToPay: packageData.amountToPay,
-      features: packageData.features,
-      referenceCode,
-    });
-
-    await newOrder.save();
-
-    res.status(201).json({ message: "Order saved successfully" });
-  } catch (error) {
-    console.error("Error saving order:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-};
-
 export const updatePayment = async (req, res) => {
   try {
     const { orderId, payment } = req.body;

@@ -3,13 +3,31 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import Stripe from "stripe";
+import Order from "../models/orders.js";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-export const createStripeSession = async (req, res) => {
+export const createOrderAndStripeSession = async (req, res) => {
   try {
-    const { packageName, amountToPay, features, category } = req.body;
+    const { orderId, packageData, referenceCode } = req.body;
 
-    if (!packageName || !amountToPay) {
+    if (!orderId || !packageData) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    // --- Step 1: Save order in database ---
+    const newOrder = new Order({
+      orderId,
+      category: packageData.category,
+      packageName: packageData.packageName,
+      amountToPay: packageData.amountToPay,
+      features: packageData.features,
+      referenceCode,
+    });
+
+    await newOrder.save();
+
+    // --- Step 2: Create Stripe session ---
+    if (!packageData.packageName || !packageData.amountToPay) {
       return res.status(400).json({ error: "Missing package details" });
     }
 
@@ -20,10 +38,10 @@ export const createStripeSession = async (req, res) => {
           price_data: {
             currency: "usd",
             product_data: {
-              name: packageName,
-              description: `Category: ${category}, Features: ${features.join(", ")}`,
+              name: packageData.packageName,
+              description: `Category: ${packageData.category}, Features: ${packageData.features.join(", ")}`,
             },
-            unit_amount: amountToPay * 100, // amount in cents
+            unit_amount: packageData.amountToPay * 100, // amount in cents
           },
           quantity: 1,
         },
@@ -33,10 +51,14 @@ export const createStripeSession = async (req, res) => {
       cancel_url: `${process.env.CLIENT_URL}/payment-cancel`,
     });
 
-    res.json({ sessionId: session.id });
+    // --- Step 3: Return both results ---
+    res.status(201).json({
+      message: "Order saved and Stripe session created successfully",
+      sessionId: session.id,
+    });
   } catch (error) {
-    console.error("Stripe session creation error:", error);
-    res.status(500).json({ error: "Failed to create Stripe session" });
+    console.error("Error creating order and Stripe session:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 

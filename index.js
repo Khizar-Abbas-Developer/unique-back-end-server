@@ -18,6 +18,7 @@ app.use(
     origin: [
       "https://unique-software-agency.com",
       "https://www.unique-software-agency.com",
+      "http://localhost:3000",
     ],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,

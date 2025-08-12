@@ -1,12 +1,12 @@
 import express from "express";
 import {
-  createStripeSession,
+  createOrderAndStripeSession,
   getStripeSession,
 } from "../controllers/stripe.js";
 
 const stripeRouter = express.Router();
 
-stripeRouter.post("/create-stripe-session", createStripeSession);
+stripeRouter.post("/payment/initiate", createOrderAndStripeSession);
 
 stripeRouter.get("/get-session", getStripeSession);
 
