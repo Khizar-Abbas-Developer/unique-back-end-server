@@ -38,6 +38,8 @@ export const createPayment = async (req, res) => {
       order: savedOrder,
     });
   } catch (error) {
+    console.log("ERROR IN BACKIN");
+
     console.error("Error updating payment status:", error);
     res.status(500).json({ message: "Server error" });
   }
