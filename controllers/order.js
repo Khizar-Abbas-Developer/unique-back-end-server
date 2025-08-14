@@ -2,6 +2,8 @@ import Order from "../models/orders.js";
 
 export const createPayment = async (req, res) => {
   try {
+    console.log("Incoming request body:", req.body); // Debug: see what Vercel actually sends
+
     const {
       payment,
       referenceCode,
@@ -11,34 +13,52 @@ export const createPayment = async (req, res) => {
       features,
       email,
       phone,
-    } = req.body;
-    // Validate required fields
+    } = req.body || {};
+
+    // Quick validation
+    if (
+      !payment ||
+      !category ||
+      !packageName ||
+      !amountToPay ||
+      !features ||
+      !email ||
+      !phone
+    ) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
 
     // Validate payment value
     const validPayments = ["success", "failed"];
     if (!validPayments.includes(payment)) {
       return res.status(400).json({ message: "Invalid payment status" });
     }
-    // Find the order and update the payment field
+
+    // Create and save order
     const newOrder = new Order({
-      category: category,
-      packageName: packageName,
-      amountToPay: amountToPay,
-      features: features,
+      category,
+      packageName,
+      amountToPay,
+      features,
       referenceCode,
       payment,
       phone,
       email,
     });
+
     const savedOrder = await newOrder.save();
-    res.status(200).json({
+
+    return res.status(200).json({
       message: "Payment created successfully",
       order: savedOrder,
     });
   } catch (error) {
-    console.log("ERROR IN BACKIN");
+    console.error("Error creating payment:", error);
 
-    console.error("Error updating payment status:", error);
-    res.status(500).json({ message: "Server error" });
+    // Send full error in dev, generic in prod
+    return res.status(500).json({
+      message: "Server error",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
   }
 };
