@@ -1,8 +1,8 @@
 import express from "express";
-import { updatePayment } from "../controllers/order.js";
+import { createPayment } from "../controllers/order.js";
 
 const orderRouter = express.Router();
 
-orderRouter.patch("/update-order", updatePayment);
+orderRouter.post("/create-order", createPayment);
 
 export default orderRouter;

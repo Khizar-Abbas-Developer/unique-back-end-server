@@ -1,16 +1,19 @@
 import mongoose from "mongoose";
 
 const OrderSchema = new mongoose.Schema({
-  orderId: {
-    type: String,
-    required: true,
-    unique: true,
-  },
   category: String,
   packageName: String,
   amountToPay: Number,
   features: [String],
   referenceCode: String,
+  email: {
+    type: String,
+    required: true,
+  },
+  phone: {
+    type: String,
+    required: true,
+  },
   payment: {
     type: String,
     enum: ["pending", "success", "failed"],

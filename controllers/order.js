@@ -1,15 +1,18 @@
 import Order from "../models/orders.js";
 
-export const updatePayment = async (req, res) => {
+export const createPayment = async (req, res) => {
   try {
-    const { orderId, payment } = req.body;
-
+    const {
+      payment,
+      referenceCode,
+      category,
+      packageName,
+      amountToPay,
+      features,
+      email,
+      phone,
+    } = req.body;
     // Validate required fields
-    if (!orderId || !payment) {
-      return res
-        .status(400)
-        .json({ message: "Missing orderId or payment status" });
-    }
 
     // Validate payment value
     const validPayments = ["success", "failed"];
@@ -18,19 +21,21 @@ export const updatePayment = async (req, res) => {
     }
 
     // Find the order and update the payment field
-    const updatedOrder = await Order.findOneAndUpdate(
-      { orderId },
-      { payment },
-      { new: true }
-    );
-
-    if (!updatedOrder) {
-      return res.status(404).json({ message: "Order not found" });
-    }
+    const newOrder = new Order({
+      category: category,
+      packageName: packageName,
+      amountToPay: amountToPay,
+      features: features,
+      referenceCode,
+      payment,
+      phone,
+      email,
+    });
+    const savedOrder = await newOrder.save();
 
     res.status(200).json({
-      message: "Payment status updated successfully",
-      order: updatedOrder,
+      message: "Payment created successfully",
+      order: savedOrder,
     });
   } catch (error) {
     console.error("Error updating payment status:", error);
