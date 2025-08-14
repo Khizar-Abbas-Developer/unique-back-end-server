@@ -19,7 +19,6 @@ export const createPayment = async (req, res) => {
     if (!validPayments.includes(payment)) {
       return res.status(400).json({ message: "Invalid payment status" });
     }
-
     // Find the order and update the payment field
     const newOrder = new Order({
       category: category,
@@ -32,7 +31,6 @@ export const createPayment = async (req, res) => {
       email,
     });
     const savedOrder = await newOrder.save();
-
     res.status(200).json({
       message: "Payment created successfully",
       order: savedOrder,
