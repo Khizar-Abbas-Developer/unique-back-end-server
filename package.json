@@ -8,8 +8,8 @@
     "start": "nodemon index.js"
   },
   "engines": {
-    "node": "20.x",
-    "npm": "10.x"
+    "node": ">=20",
+    "npm": ">=10"
   },
   "repository": {
     "type": "git",
