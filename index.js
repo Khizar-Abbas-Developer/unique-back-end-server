@@ -20,7 +20,7 @@ app.use(
       "https://www.unique-software-agency.com",
       "http://localhost:3000",
     ],
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: "*",
     credentials: true,
   })
 );
