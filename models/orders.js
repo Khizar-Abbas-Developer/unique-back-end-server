@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 
 const OrderSchema = new mongoose.Schema({
+  orderId: String,
   category: String,
   packageName: String,
   amountToPay: Number,
@@ -8,11 +9,11 @@ const OrderSchema = new mongoose.Schema({
   referenceCode: String,
   email: {
     type: String,
-    required: true,
+    required: false,
   },
   phone: {
     type: String,
-    required: true,
+    required: false,
   },
   payment: {
     type: String,

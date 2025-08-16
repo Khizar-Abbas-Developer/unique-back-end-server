@@ -1,31 +1,10 @@
 import Order from "../models/orders.js";
 
-export const createPayment = async (req, res) => {
+export const updatePayment = async (req, res) => {
   try {
-    console.log("Incoming request body:", req.body); // Debug: see what Vercel actually sends
-
-    const {
-      payment,
-      referenceCode,
-      category,
-      packageName,
-      amountToPay,
-      features,
-      email,
-      phone,
-    } = req.body || {};
-
-    // Quick validation
-    if (
-      !payment ||
-      !category ||
-      !packageName ||
-      !amountToPay ||
-      !features ||
-      !email ||
-      !phone
-    ) {
-      return res.status(400).json({ message: "Missing required fields" });
+    const { orderId, payment } = req.body;
+    if (!orderId) {
+      return res.status(400).json({ message: "orderId is required" });
     }
 
     // Validate payment value
@@ -34,31 +13,23 @@ export const createPayment = async (req, res) => {
       return res.status(400).json({ message: "Invalid payment status" });
     }
 
-    // Create and save order
-    const newOrder = new Order({
-      category,
-      packageName,
-      amountToPay,
-      features,
-      referenceCode,
-      payment,
-      phone,
-      email,
-    });
+    // Find the order and update the payment field
+    const updatedOrder = await Order.findOneAndUpdate(
+      { orderId },
+      { payment },
+      { new: true } // return the updated document
+    );
 
-    const savedOrder = await newOrder.save();
+    if (!updatedOrder) {
+      return res.status(404).json({ message: "Order not found" });
+    }
 
-    return res.status(200).json({
-      message: "Payment created successfully",
-      order: savedOrder,
+    res.status(200).json({
+      message: "Payment status updated successfully",
+      data: updatedOrder,
     });
   } catch (error) {
-    console.error("Error creating payment:", error);
-
-    // Send full error in dev, generic in prod
-    return res.status(500).json({
-      message: "Server error",
-      error: process.env.NODE_ENV === "development" ? error.message : undefined,
-    });
+    console.error("Error updating payment status:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };

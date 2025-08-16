@@ -3,16 +3,18 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import Stripe from "stripe";
+import Order from "../models/orders.js";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export const createStripeSession = async (req, res) => {
   try {
-    const { packageData } = req.body; // Expect packageData from client
+    const { packageData, orderId, referenceCode, email, phone } = req.body; // Expect packageData from client
 
     if (!packageData) {
       return res.status(400).json({ message: "Package data is required" });
     }
 
+    // 1. Create Stripe session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: [
@@ -35,7 +37,21 @@ export const createStripeSession = async (req, res) => {
       cancel_url: `${process.env.CLIENT_URL}/payment-cancel`,
     });
 
-    // Redirect user directly to Stripe checkout page
+    // 2. Store order data in DB
+    const newOrder = new Order({
+      orderId, // optional if you’re tracking orderId
+      category: packageData.category,
+      packageName: packageData.packageName,
+      amountToPay: packageData.amountToPay,
+      features: packageData.features,
+      referenceCode: referenceCode,
+      email,
+      phone,
+    });
+
+    await newOrder.save();
+
+    // 3. Return session id
     res.status(201).json({ sessionId: session.id });
   } catch (error) {
     console.error("Error creating Stripe session:", error);
