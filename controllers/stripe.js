@@ -8,11 +8,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export const createStripeSession = async (req, res) => {
   try {
-    const { packageData, orderId, referenceCode, email, phone } = req.body; // Expect packageData from client
-
-    if (!packageData) {
-      return res.status(400).json({ message: "Package data is required" });
-    }
+    const { orderId, category, features, packageName, amountToPay } = req.body; // Expect packageData from client
 
     // 1. Create Stripe session
     const session = await stripe.checkout.sessions.create({
@@ -22,12 +18,12 @@ export const createStripeSession = async (req, res) => {
           price_data: {
             currency: "usd",
             product_data: {
-              name: packageData.packageName,
-              description: `Category: ${packageData.category}, Features: ${packageData.features.join(
+              name: packageName,
+              description: `Category: ${category}, Features: ${features.join(
                 ", "
               )}`,
             },
-            unit_amount: packageData.amountToPay * 100, // amount in cents
+            unit_amount: amountToPay * 100, // amount in cents
           },
           quantity: 1,
         },
@@ -40,13 +36,6 @@ export const createStripeSession = async (req, res) => {
     // 2. Store order data in DB
     const newOrder = new Order({
       orderId, // optional if you’re tracking orderId
-      category: packageData.category,
-      packageName: packageData.packageName,
-      amountToPay: packageData.amountToPay,
-      features: packageData.features,
-      referenceCode: referenceCode,
-      email,
-      phone,
     });
 
     await newOrder.save();

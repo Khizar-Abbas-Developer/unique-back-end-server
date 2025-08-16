@@ -2,7 +2,17 @@ import Order from "../models/orders.js";
 
 export const updatePayment = async (req, res) => {
   try {
-    const { orderId, payment } = req.body;
+    const {
+      orderId,
+      payment,
+      packageName,
+      category,
+      amountToPay,
+      features,
+      referenceCode,
+      email,
+      phone,
+    } = req.body;
     if (!orderId) {
       return res.status(400).json({ message: "orderId is required" });
     }
@@ -16,7 +26,16 @@ export const updatePayment = async (req, res) => {
     // Find the order and update the payment field
     const updatedOrder = await Order.findOneAndUpdate(
       { orderId },
-      { payment },
+      {
+        payment,
+        packageName,
+        category,
+        amountToPay,
+        features,
+        referenceCode,
+        email,
+        phone,
+      },
       { new: true } // return the updated document
     );
 
