@@ -20,6 +20,7 @@ const start = async () => {
         "https://unique-software-agency.com",
         "https://www.unique-software-agency.com",
         "http://localhost:3000",
+        "https://www.devhousepro.com",
       ],
       methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
       credentials: true,
