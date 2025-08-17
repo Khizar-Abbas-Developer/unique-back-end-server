@@ -1,13 +1,17 @@
-import express from "express";
+// routes/stripe.js
 import {
   createStripeSession,
   getStripeSession,
 } from "../controllers/stripe.js";
 
-const stripeRouter = express.Router();
+export default async function stripeRouter(fastify, opts) {
+  // POST /api/stripe/payment/initiate
+  fastify.post("/payment/initiate", async (request, reply) => {
+    return createStripeSession(request, reply);
+  });
 
-stripeRouter.post("/payment/initiate", createStripeSession);
-
-stripeRouter.get("/get-session", getStripeSession);
-
-export default stripeRouter;
+  // GET /api/stripe/get-session
+  fastify.get("/get-session", async (request, reply) => {
+    return getStripeSession(request, reply);
+  });
+}

@@ -4,11 +4,13 @@ dotenv.config();
 
 import Stripe from "stripe";
 import Order from "../models/orders.js";
+
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-export const createStripeSession = async (req, res) => {
+export const createStripeSession = async (request, reply) => {
   try {
-    const { orderId, category, features, packageName, amountToPay } = req.body; // Expect packageData from client
+    const { orderId, category, features, packageName, amountToPay } =
+      request.body;
 
     // 1. Create Stripe session
     const session = await stripe.checkout.sessions.create({
@@ -19,9 +21,7 @@ export const createStripeSession = async (req, res) => {
             currency: "usd",
             product_data: {
               name: packageName,
-              description: `Category: ${category}, Features: ${features.join(
-                ", "
-              )}`,
+              description: `Category: ${category}, Features: ${features.join(", ")}`,
             },
             unit_amount: amountToPay * 100, // amount in cents
           },
@@ -34,31 +34,29 @@ export const createStripeSession = async (req, res) => {
     });
 
     // 2. Store order data in DB
-    const newOrder = new Order({
-      orderId, // optional if you’re tracking orderId
-    });
-
+    const newOrder = new Order({ orderId });
     await newOrder.save();
 
     // 3. Return session id
-    res.status(201).json({ sessionId: session.id });
+    return reply.code(201).send({ sessionId: session.id });
   } catch (error) {
-    console.error("Error creating Stripe session:", error);
-    res.status(500).json({ message: "Server error" });
+    request.log.error("Error creating Stripe session:", error);
+    return reply.code(500).send({ message: "Server error" });
   }
 };
 
-export const getStripeSession = async (req, res) => {
-  const { session_id } = req.query;
+export const getStripeSession = async (request, reply) => {
+  const { session_id } = request.query;
 
   if (!session_id) {
-    return res.status(400).json({ error: "Missing session_id" });
+    return reply.code(400).send({ error: "Missing session_id" });
   }
+
   try {
     const session = await stripe.checkout.sessions.retrieve(session_id);
-    return res.status(200).json(session);
+    return reply.code(200).send(session);
   } catch (error) {
-    console.error("Error retrieving Stripe session:", error);
-    return res.status(500).json({ error: "Failed to retrieve session" });
+    request.log.error("Error retrieving Stripe session:", error);
+    return reply.code(500).send({ error: "Failed to retrieve session" });
   }
 };

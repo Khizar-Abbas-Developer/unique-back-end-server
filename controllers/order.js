@@ -1,6 +1,7 @@
+// controllers/order.js
 import Order from "../models/orders.js";
 
-export const updatePayment = async (req, res) => {
+export const updatePayment = async (request, reply) => {
   try {
     const {
       orderId,
@@ -12,15 +13,16 @@ export const updatePayment = async (req, res) => {
       referenceCode,
       email,
       phone,
-    } = req.body;
+    } = request.body;
+
     if (!orderId) {
-      return res.status(400).json({ message: "orderId is required" });
+      return reply.code(400).send({ message: "orderId is required" });
     }
 
     // Validate payment value
     const validPayments = ["success", "failed"];
     if (!validPayments.includes(payment)) {
-      return res.status(400).json({ message: "Invalid payment status" });
+      return reply.code(400).send({ message: "Invalid payment status" });
     }
 
     // Find the order and update the payment field
@@ -40,15 +42,15 @@ export const updatePayment = async (req, res) => {
     );
 
     if (!updatedOrder) {
-      return res.status(404).json({ message: "Order not found" });
+      return reply.code(404).send({ message: "Order not found" });
     }
 
-    res.status(200).json({
+    return reply.code(200).send({
       message: "Payment status updated successfully",
       data: updatedOrder,
     });
   } catch (error) {
-    console.error("Error updating payment status:", error);
-    res.status(500).json({ message: "Server error" });
+    request.log.error("Error updating payment status:", error);
+    return reply.code(500).send({ message: "Server error" });
   }
 };
