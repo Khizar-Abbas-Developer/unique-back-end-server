@@ -16,12 +16,7 @@ const start = async () => {
   try {
     // Middleware (CORS)
     await fastify.register(cors, {
-      origin: [
-        "https://unique-software-agency.com",
-        "https://www.unique-software-agency.com",
-        "http://localhost:3000",
-        "https://www.devhousepro.com",
-      ],
+      origin: true, // ✅ Allows all origins
       methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
       credentials: true,
     });
