@@ -15,6 +15,7 @@ const fastify = Fastify({
 const start = async () => {
   try {
     // Middleware (CORS)
+    // Middleware (CORS)
     await fastify.register(cors, {
       origin: true, // ✅ Allows all origins
       methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
