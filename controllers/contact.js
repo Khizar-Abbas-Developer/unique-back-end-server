@@ -1,7 +1,7 @@
 import contactModal from "../models/contact.js";
 
-export const createContact = async (req, res) => {
-  const { firstName, lastName, email, contactNumber, message } = req.body;
+export const createContact = async (request, reply) => {
+  const { firstName, lastName, email, contactNumber, message } = request.body;
   try {
     const newContact = await contactModal.create({
       firstName,
@@ -10,12 +10,13 @@ export const createContact = async (req, res) => {
       contactNumber,
       message,
     });
-    res
-      .status(201)
-      .json({ message: "Contact created successfully", newContact });
+    reply.status(201).send({
+      message: "Contact created successfully",
+      newContact,
+    });
   } catch (error) {
     console.error(error);
-    res.status(500).json({
+    reply.status(500).send({
       message: "Failed to create contact",
     });
   }

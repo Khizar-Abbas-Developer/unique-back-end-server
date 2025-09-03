@@ -1,9 +1,8 @@
-import express from "express";
+// routes/contact.js
 import { createContact } from "../controllers/contact.js";
 
-const contactRouter = express.Router();
-
-// Route to create a new contact
-contactRouter.post("/create-contact", createContact);
+async function contactRouter(fastify, options) {
+  fastify.post("/create-contact", createContact);
+}
 
 export default contactRouter;
