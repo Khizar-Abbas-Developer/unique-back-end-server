@@ -1,4 +1,5 @@
 import contactModal from "../models/contact.js";
+import { sendContactEmail } from "../utils/transporter.js";
 
 export const createContact = async (request, reply) => {
   const { firstName, lastName, email, contactNumber, message } = request.body;
@@ -10,6 +11,14 @@ export const createContact = async (request, reply) => {
       contactNumber,
       message,
     });
+    await sendContactEmail({
+      firstName,
+      lastName,
+      email,
+      contactNumber,
+      message,
+    });
+
     reply.status(201).send({
       message: "Contact created successfully",
       newContact,

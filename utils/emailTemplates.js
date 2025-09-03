@@ -1,50 +1,75 @@
-export const creatorCreated = (name, email, password) => {
-  return `
-    <div>
-      <p>Hello <strong>${name}</strong>,</p>
-      <p>Your account has been successfully created as a Creator.</p>
-      <p><strong>Your login details are:</strong><br>
-      Email: ${email}<br>
-      Password: ${password}</p>
-      <p>Please keep your password secure.</p>
-      <p>Best Regards,<br>The Team</p>
-    </div>
-  `;
-};
-
-export const EmployeeCreated = (name, email, password) => {
-  return `
-        <p>Hello ${name},</p>
-        <p>Your account has been successfully created as an Employee.</p>
-        <p><strong>Login Details:</strong></p>
-        <ul>
-          <li><strong>Email:</strong> ${email}</li>
-          <li><strong>Password:</strong> ${password}</li>
-        </ul>
-        <p>Please keep your password secure.</p>
-        <p>Best Regards,<br/>The Team</p>
-  `;
-};
-
-export const resetPasswordEmailTemplaet = (verificationLink) => {
+export const contactFormTemplate = (firstName, lastName, email, phone, message) => {
   const year = new Date().getFullYear();
   return `
-  <div style="max-width:600px;margin:auto;padding:20px;font-family:Arial,sans-serif;text-align:center;
-              border:1px solid #ddd;border-radius:10px;">
-    <h2 style="color:#333;">Reset Your Password</h2>
-    <p style="font-size:16px;color:#555;">
-      Thanks for signing up! Click below to reset your password:
-    </p>
-    <a href="${verificationLink}"
-       style="display:inline-block;padding:12px 24px;margin-top:10px;
-              font-size:16px;color:#fff;background:#4CAF50;text-decoration:none;border-radius:5px;">
-      Reset Password
-    </a>
-    <p style="font-size:14px;color:#777;margin-top:20px;">
-      If you didn’t request this, just ignore this email.
-    </p>
-    <hr style="margin:20px 0;">
-    <p style="font-size:12px;color:#999;">&copy; ${year} Your Company. All rights reserved.</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>New Contact Form Submission</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f9fa;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      background: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+    .header {
+      background-color: #2563eb;
+      color: #ffffff;
+      text-align: center;
+      padding: 20px;
+    }
+    .header h2 {
+      margin: 0;
+      font-size: 20px;
+    }
+    .content {
+      padding: 20px;
+      color: #333333;
+    }
+    .content p {
+      margin: 8px 0;
+    }
+    .content strong {
+      color: #111827;
+    }
+    .footer {
+      background-color: #f1f5f9;
+      text-align: center;
+      padding: 15px;
+      font-size: 12px;
+      color: #6b7280;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2>📩 New Contact Form Submission</h2>
+    </div>
+    <div class="content">
+      <p><strong>First Name:</strong> {{firstName}}</p>
+      <p><strong>Last Name:</strong> {{lastName}}</p>
+      <p><strong>Email:</strong> {{email}}</p>
+      <p><strong>Contact Number:</strong> {{contactNumber}}</p>
+      <p><strong>Message:</strong></p>
+      <p>{{message}}</p>
+    </div>
+    <div class="footer">
+      <p>This email was generated automatically from your website's contact form.</p>
+    </div>
   </div>
+</body>
+</html>
+
   `;
 };
