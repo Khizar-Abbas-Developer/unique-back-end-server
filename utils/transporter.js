@@ -35,8 +35,8 @@ export const sendContactEmail = async (formData) => {
 
   try {
     const info = await transporter.sendMail({
-      from: `"OFMBase Contact" <${process.env.GMAIL_USER}>`, // Sender (your Gmail)
-      to: "info@ofmbase.com", // Hardcoded admin email (replace if needed)
+      from: `"Unique Software HUB (LLC)" <${process.env.EMAIL_USER}>`, // Sender (your Gmail)
+      to: process.env.EMAIL_USER, // Hardcoded admin email (replace if needed)
       subject: "New Contact Form Submission",
       html: htmlContent,
     });
