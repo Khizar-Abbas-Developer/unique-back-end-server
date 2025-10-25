@@ -1,4 +1,3 @@
-// controllers/paymentController.js
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -7,18 +6,41 @@ import Order from "../models/orders.js";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
+// Utility function to convert PKR → USD dynamically
+async function convertPKRtoUSD(amountInPKR) {
+  try {
+    const response = await fetch("https://api.exchangerate.host/convert?from=PKR&to=USD");
+    const data = await response.json();
+
+    if (data?.result) {
+      const rate = data.result;
+      const converted = amountInPKR / rate;
+      return { rate, converted: Number(converted.toFixed(2)) };
+    } else {
+      throw new Error("Exchange rate API returned no result");
+    }
+  } catch (error) {
+    console.error("Currency conversion failed:", error.message);
+    // fallback rate if API fails
+    const fallbackRate = 280;
+    return { rate: fallbackRate, converted: Number((amountInPKR / fallbackRate).toFixed(2)) };
+  }
+}
+
 export const createStripeSession = async (request, reply) => {
   try {
-    const { orderId, category, features, packageName, amountToPay, domain } =
-      request.body;
+    const { orderId, category, features, packageName, amountToPay, domain } = request.body;
 
     // ✅ Decide client URL based on domain
-    let clientUrl = process.env.CLIENT_URL; // default
+    let clientUrl = process.env.CLIENT_URL;
     if (domain === "devhousepro") {
       clientUrl = process.env.CLIENT_URL_SECOND;
     }
 
-    // 1. Create Stripe session
+    // ✅ Convert PKR → USD dynamically
+    const { rate, converted } = await convertPKRtoUSD(amountToPay);
+
+    // ✅ Create Stripe Checkout session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: [
@@ -27,11 +49,9 @@ export const createStripeSession = async (request, reply) => {
             currency: "usd",
             product_data: {
               name: packageName,
-              description: `Category: ${category}, Features: ${features.join(
-                ", "
-              )}`,
+              description: `Category: ${category}, Features: ${features.join(", ")}`,
             },
-            unit_amount: amountToPay * 100, // amount in cents
+            unit_amount: Math.round(converted * 100), // USD cents
           },
           quantity: 1,
         },
@@ -39,14 +59,18 @@ export const createStripeSession = async (request, reply) => {
       mode: "payment",
       success_url: `${clientUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${clientUrl}/payment-cancel`,
+      metadata: {
+        original_amount_pkr: amountToPay,
+        converted_usd: converted,
+        conversion_rate: rate,
+      },
     });
 
-    // 2. Store order data in DB
+    // ✅ Store order data
     const newOrder = new Order({ orderId });
     await newOrder.save();
 
-    // 3. Return session id
-    return reply.code(201).send({ sessionId: session.id });
+    return reply.code(201).send({ sessionId: session.id, rate, converted });
   } catch (error) {
     request.log.error("Error creating Stripe session:", error);
     return reply.code(500).send({ message: "Server error" });
